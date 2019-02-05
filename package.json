@@ -1,0 +1,23 @@
+{
+  "name": "tp1",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "js-crawler": "^0.3.21"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LudoCruchot/TP1_DataBase.git"
+  },
+  "author": "Antoine Demon <antwane_demon@yahoo.fr>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/LudoCruchot/TP1_DataBase/issues"
+  },
+  "homepage": "https://github.com/LudoCruchot/TP1_DataBase#readme"
+}
