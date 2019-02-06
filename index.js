@@ -1,59 +1,28 @@
 var request = require('request');
 var cheerio = require('cheerio');
 var fs = require('fs');
-var crawler = require('js-crawler');
 
-var firstUrl = "http://aonprd.com/Spells.aspx?Class=Wizard";
-var secondUrl = "http://www.d20pfsrd.com/magic/spell-lists-and-domains/spell-lists-sorcerer-and-wizard/#TOC-8th-Level-Sorcerer-Wizard-Spells";
-// var url = "http://wikipedia.org";
+var url = "http://www.d20pfsrd.com/magic/spell-lists-and-domains/spell-lists-sorcerer-and-wizard/#TOC-8th-Level-Sorcerer-Wizard-Spells";
 
-function FirstSpellsCrawling() {
+function SpellsCrawling() {
 
-    console.log("Crawling the page: " + firstUrl);
+    console.log("Crawling the page: " + url);
 
-    request(firstUrl, (error, response, html) => {
+    request(url, (error, response, html) => {
 
         if (!error && response.statusCode == 200) {
             const $ = cheerio.load(html);
 
-            const main = $('.main');
-
-            // const output = main
-            //     .find('b')
-            //     .text();
-
-            // console.log(output);
-
-            $('.main b').each((i, element) => {
-                const item = $(element).text();
-                console.log(item);
-            })
-
-        }
-        else {
-            console.log('Code: ' + response.statusCode + ' Error: ' + error);
-        }
-    })
-}
-
-function SecondSpellsCrawling() {
-
-    console.log("Crawling the page: " + secondUrl);
-
-    request(secondUrl, (error, response, html) => {
-
-        if (!error && response.statusCode == 200) {
-            const $ = cheerio.load(html);
+            const toJSON = {
+                spells: []
+            }
 
             $('.article-content table').each((i, element) => {
                 const level = $(element)
                     .children('caption')
                     .text();
 
-                const spells = [];
-
                 $(element).children('tbody').each((i, element) => {
-
                     $(element).children('tr').each((i, element) => {
                         const spell = $(element)
                             .children('td')
@@ -61,15 +30,20 @@ function SecondSpellsCrawling() {
                             .first()
                             .text();
 
-                        spells.push(spell);
-                        // console.log('spell ' + spell);
-                        fs.appendFileSync('spells.txt', 'level: ' + level[0] + ' spell: ' + spell + '\n');
+                        toJSON.spells.push(
+                            {
+                                name: spell,
+                                level: level,
+                                components: ["V", "S", "M"],
+                                spell_resistance: false
+                            }
+                        );
                     })
                 })
-
-                // console.log('level ' + level);
-                // console.log('spell ' + spells);
             })
+
+            let jsonSpells = JSON.stringify(toJSON);
+            fs.writeFileSync('spells.json', jsonSpells);
         }
         else {
             console.log('Code: ' + response.statusCode + ' Error: ' + error);
@@ -77,12 +51,4 @@ function SecondSpellsCrawling() {
     })
 }
 
-function JsCrawler() {
-    new crawler().configure({ depth: 3 }).crawl("http://www.google.com", function onSucces(page) {
-        console.log(page.content);
-    })
-}
-
-//FirstSpellsCrawling();
-SecondSpellsCrawling();
-// JsCrawler();
+SpellsCrawling();
