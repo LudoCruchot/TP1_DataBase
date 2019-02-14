@@ -1,10 +1,20 @@
 var request = require('request');
 var cheerio = require('cheerio');
 var fs = require('fs');
+var mongoose = require('mongoose');
 
 var url = "http://www.d20pfsrd.com/magic/spell-lists-and-domains/spell-lists-sorcerer-and-wizard/#TOC-8th-Level-Sorcerer-Wizard-Spells";
 
 function SpellsCrawling() {
+
+    mongoose.connect('mongodb://localhost/tp1_database');
+    var db = mongoose.connection;
+
+    db.on('error', console.error.bind(console, 'connection error: '));
+
+    db.once('open', function () {
+        console.log('Connection successful');
+    });
 
     console.log("Crawling the page: " + url);
 
@@ -38,6 +48,13 @@ function SpellsCrawling() {
                                 spell_resistance: false
                             }
                         );
+
+                        db.collection('spells').insertOne({
+                            name: spell,
+                            level: level,
+                            components: ["V", "S", "M"],
+                            spell_resistance: false
+                        })
                     })
                 })
             })
@@ -51,4 +68,18 @@ function SpellsCrawling() {
     })
 }
 
+function ConnectDatabase() {
+    mongoose.connect('mongodb://localhost/tp1_database');
+    var db = mongoose.connection;
+
+    db.on('error', console.error.bind(console, 'connection error: '));
+
+    db.once('open', function () {
+        console.log('Connection successful');
+    });
+
+    db.spells.remove({});
+}
+
 SpellsCrawling();
+// ConnectDatabase();
