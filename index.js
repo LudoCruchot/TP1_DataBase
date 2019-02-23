@@ -2,10 +2,13 @@ var request = require('request');
 var cheerio = require('cheerio');
 var fs = require('fs');
 var mongoose = require('mongoose');
+var promise = require('promise');
 
 var url = "http://www.d20pfsrd.com/magic/spell-lists-and-domains/spell-lists-sorcerer-and-wizard/#TOC-8th-Level-Sorcerer-Wizard-Spells";
 
 function SpellsCrawling() {
+
+    var counter = 0;
 
     mongoose.connect('mongodb://localhost/tp1_database');
     var db = mongoose.connection;
@@ -16,11 +19,12 @@ function SpellsCrawling() {
         console.log('Connection successful');
     });
 
-    console.log("Crawling the page: " + url);
+    console.log('Crawling the page: ' + url);
 
     request(url, (error, response, html) => {
 
         if (!error && response.statusCode == 200) {
+            console.log('OKKKKK');
             const $ = cheerio.load(html);
 
             const toJSON = {
@@ -49,6 +53,10 @@ function SpellsCrawling() {
                             }
                         );
 
+                        counter++;
+
+                        console.log('Name ' + spell + ' ' + counter);
+
                         db.collection('spells').insertOne({
                             name: spell,
                             level: level,
@@ -59,8 +67,8 @@ function SpellsCrawling() {
                 })
             })
 
-            let jsonSpells = JSON.stringify(toJSON);
-            fs.writeFileSync('spells.json', jsonSpells);
+            // let jsonSpells = JSON.stringify(toJSON);
+            // fs.writeFileSync('spells.json', jsonSpells);
         }
         else {
             console.log('Code: ' + response.statusCode + ' Error: ' + error);
@@ -68,18 +76,4 @@ function SpellsCrawling() {
     })
 }
 
-function ConnectDatabase() {
-    mongoose.connect('mongodb://localhost/tp1_database');
-    var db = mongoose.connection;
-
-    db.on('error', console.error.bind(console, 'connection error: '));
-
-    db.once('open', function () {
-        console.log('Connection successful');
-    });
-
-    db.spells.remove({});
-}
-
 SpellsCrawling();
-// ConnectDatabase();
