@@ -10,7 +10,7 @@ function SpellsCrawling() {
 
     // var $ = cheerio.load(html);   pour le vrai code
 
-    var $ = cheerio.load(fs.readFileSync('page_sort_test3.html'));
+    var $ = cheerio.load(fs.readFileSync('page_sort_test.html'));
 
     var nbLevels = $('.article-content')
         .children('p')
@@ -76,13 +76,14 @@ function SpellsCrawling() {
         .eq(4)
         .text();
 
-    spell_resistanceTab = spell_resistance.split('Resistance');
-    spell_resistance = spell_resistanceTab[1];
-    spell_resistanceTab2 = spell_resistance.split(' ');
-    spell_resistance = spell_resistanceTab2[1].trim();
+    if (spell_resistance.includes('Resistance')) {
+        spell_resistanceTab = spell_resistance.split('Resistance');
+        spell_resistanceTab2 = spell_resistanceTab[1].trim().split(' ');
+        spell_resistance = spell_resistanceTab2[0];
+    }
 
 
-    console.log(spell_resistance);
+    console.log(components);
 }
 
 SpellsCrawling();

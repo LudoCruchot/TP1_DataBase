@@ -10,16 +10,20 @@ var LIST_URL = 'http://www.d20pfsrd.com/magic/spell-lists-and-domains/spell-list
 function SpellsCrawling() {
 
     var counter = 0;
+    var counterA = 0;
+    var counterB = 0;
+    var counterStatuscodeOk = 0;
+    var counterStatuscodePasok = 0;
     var pasOk = 0;
 
-    // mongoose.connect('mongodb://localhost/tp1_database');
-    // var db = mongoose.connection;
+    mongoose.connect('mongodb://localhost/tp1_database');
+    var db = mongoose.connection;
 
-    // db.on('error', console.error.bind(console, 'connection error: '));
+    db.on('error', console.error.bind(console, 'connection error: '));
 
-    // db.once('open', function () {
-    //     console.log('Connection successful');
-    // });
+    db.once('open', function () {
+        console.log('Connection successful');
+    });
 
     request(LIST_URL, (error, response, html) => {
         console.log('Start scraping ...');
@@ -39,9 +43,12 @@ function SpellsCrawling() {
 
                         return new Promise((resolve, reject) => {
                             request(spellUrl, (error, response, html) => {
-                                console.log('Response code', response.statusCode);
+                                // console.log('Response code', response.statusCode);
                                 if (!error && response.statusCode == 200) {
                                     var $ = cheerio.load(html);
+
+                                    counterStatuscodeOk++;
+                                    // console.log('Response code 200 ', counterStatuscodeOk);
 
                                     //utils
                                     var nbB = $('.article-content')
@@ -79,9 +86,16 @@ function SpellsCrawling() {
                                         .eq(2)
                                         .text();
 
-                                    componentsTab = components.split('Components');
+                                    if (components == undefined) {
+                                        components = null;
+                                    }
+                                    else if (components.includes('Components')) {
+                                        componentsTab = components.split('Components');
+                                    }
+                                    else {
+                                        componentsTab = components.split('Component:');
+                                    }
                                     components = componentsTab[1];
-
 
                                     //spell_resistance
                                     var spell_resistance = '';
@@ -89,19 +103,30 @@ function SpellsCrawling() {
                                         .children('p')
                                         .eq(4)
                                         .text();
-                                    spell_resistanceTab = spell_resistance.split('Resistance');
-                                    // spell_resistance = spell_resistanceTab[1];
-                                    // spell_resistanceTab2 = spell_resistance.split(' ');
-                                    // spell_resistance = spell_resistanceTab2[1].trim();
+
+                                    if (spell_resistance.includes('Resistance')) {
+                                        spell_resistanceTab = spell_resistance.split('Resistance');
+                                        spell_resistanceTab2 = spell_resistanceTab[1].trim().split(' ');
+                                        spell_resistance = spell_resistanceTab2[0];
+                                    }
+                                    else {
+                                        spell_resistance = 'no';
+                                    }
 
                                     //json
                                     var nameToJSON = name.trim();
                                     var levelToJSON = level.trim();
-                                    // var componentsToJSON = components.split(',');
-                                    var componentsToJSON = components;
-                                    // for (i = 0; i < componentsToJSON.length; i++) {
-                                    //     componentsToJSON[i] = componentsToJSON[i].trim();
-                                    // }
+                                    console.log('CHECK COMPONENT', name, components);
+                                    if (components == null) {
+                                        var componentsToJSON = components;
+                                    }
+                                    else {
+                                        var componentsToJSON = components.split(',');
+
+                                        for (i = 0; i < componentsToJSON.length; i++) {
+                                            componentsToJSON[i] = componentsToJSON[i].trim();
+                                        }
+                                    }
                                     var spell_resistanceToJSON = false;
                                     if (spell_resistance === 'yes') {
                                         spell_resistanceToJSON = true
@@ -109,26 +134,40 @@ function SpellsCrawling() {
 
                                     var json = {
                                         name: nameToJSON,
-                                        // level: levelToJSON,
-                                        // components: componentsToJSON,
-                                        // spell_resistance: spell_resistanceToJSON
+                                        level: levelToJSON,
+                                        components: componentsToJSON,
+                                        spell_resistance: spell_resistanceToJSON
                                     }
 
                                     resolve(json);
                                 }
                                 else {
                                     // console.log(error);
+                                    counterStatuscodePasok++;
+                                    // console.log('Response code XXX ', counterStatuscodePasok);
                                     resolve(null);
                                 }
                             })
                         })
                             .then((spell) => {
 
-                                // db.collection('spells').insertOne({
-                                //     spell
-                                // })
-                                // counter++;
-                                // console.log(spell, ' inserted ', counter);
+                                if (spell != null) {
+                                    counter++;
+                                    console.log(spell, counter);
+                                    db.collection('spells').insertOne({
+                                        spell
+                                    })
+                                    console.log(spell, ' inserted ', counter);
+                                }
+
+                                // if (spell != null) {
+
+
+                                //     db.collection('spells').insertOne({
+                                //         spell
+                                //     })
+                                //     console.log(spell, ' inserted ', counter);
+                                // }
                             })
                     })
                 })
