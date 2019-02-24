@@ -3,18 +3,12 @@ var cheerio = require('cheerio');
 var cheerioAdv = require('cheerio-advanced-selectors')
 var fs = require('fs');
 var mongoose = require('mongoose');
-// var promise = require('promise');
 
 var LIST_URL = 'http://www.d20pfsrd.com/magic/spell-lists-and-domains/spell-lists-sorcerer-and-wizard/#TOC-8th-Level-Sorcerer-Wizard-Spells'
 
 function SpellsCrawling() {
 
     var counter = 0;
-    var counterA = 0;
-    var counterB = 0;
-    var counterStatuscodeOk = 0;
-    var counterStatuscodePasok = 0;
-    var pasOk = 0;
 
     mongoose.connect('mongodb://localhost/tp1_database');
     var db = mongoose.connection;
@@ -43,12 +37,8 @@ function SpellsCrawling() {
 
                         return new Promise((resolve, reject) => {
                             request(spellUrl, (error, response, html) => {
-                                // console.log('Response code', response.statusCode);
                                 if (!error && response.statusCode == 200) {
                                     var $ = cheerio.load(html);
-
-                                    counterStatuscodeOk++;
-                                    // console.log('Response code 200 ', counterStatuscodeOk);
 
                                     //utils
                                     var nbB = $('.article-content')
@@ -116,7 +106,6 @@ function SpellsCrawling() {
                                     //json
                                     var nameToJSON = name.trim();
                                     var levelToJSON = level.trim();
-                                    console.log('CHECK COMPONENT', name, components);
                                     if (components == null) {
                                         var componentsToJSON = components;
                                     }
@@ -142,9 +131,6 @@ function SpellsCrawling() {
                                     resolve(json);
                                 }
                                 else {
-                                    // console.log(error);
-                                    counterStatuscodePasok++;
-                                    // console.log('Response code XXX ', counterStatuscodePasok);
                                     resolve(null);
                                 }
                             })
@@ -152,22 +138,12 @@ function SpellsCrawling() {
                             .then((spell) => {
 
                                 if (spell != null) {
-                                    counter++;
-                                    console.log(spell, counter);
                                     db.collection('spells').insertOne({
                                         spell
                                     })
+                                    counter++;
                                     console.log(spell, ' inserted ', counter);
                                 }
-
-                                // if (spell != null) {
-
-
-                                //     db.collection('spells').insertOne({
-                                //         spell
-                                //     })
-                                //     console.log(spell, ' inserted ', counter);
-                                // }
                             })
                     })
                 })
