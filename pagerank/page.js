@@ -1,9 +1,17 @@
 class Page {
-  constructor(name, linkOut, pageRank) {
+  constructor(name, linkOut, pagerank) {
     this.name = name;
     this.linkOut = linkOut;
-    this.pageRank = pageRank;
-    this.linkIn = 0;
+    this.pagerank = pagerank;
+    this.links = [];
+  }
+
+  addLink(page) {
+    const link = { 
+      pagerank: page.pagerank, 
+      linkOut: page.linkOut 
+    };
+    this.links.push(link);
   }
 }
 
