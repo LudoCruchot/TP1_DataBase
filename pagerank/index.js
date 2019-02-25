@@ -1,8 +1,7 @@
-const sandboxData = require("./sandboxData");
+const mongoUtil = require('../utils/mongo');
+const getSandboxData = require("./sandboxData");
 
-const pages = sandboxData(5);
-
-console.log(pages);
+const pages = getSandboxData();
 
 const page1 = pages[0];
 const page2 = pages[1];
@@ -13,4 +12,5 @@ page1.addLink(page3);
 
 page2.addLink(page1);
 
-console.log(page1);
+console.log(pages);
+mongoUtil.insertPages(pages);

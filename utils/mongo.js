@@ -22,5 +22,13 @@ mongoose.connect(`mongodb://${DB_HOST}/${DB_NAME}`, { useNewUrlParser: true }, (
 });
 
 module.exports = {
-  insert: (spell) => mongoose.connection.collection('spells').insertOne({ spell })
+  insert: (spell) => mongoose.connection.collection('spells').insertOne({ spell }),
+  insertPages: (pages) => {
+    mongoose.connection.collection('pages').insertMany(pages, (err, res) => {
+      if(err) return console.log("error while inserting to mongoDB");
+      
+      console.log(res, "inserted");
+      process.exit(1);
+    });
+  }
 }
