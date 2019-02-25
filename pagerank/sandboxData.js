@@ -1,10 +1,11 @@
 const Page = require('./page');
 
-export default (number) => {
+module.exports = (number) => {
   const result = [];
 
   for (let i = 0; i < number; i++) {
-    result.push(i);
+    const newPage = new Page(`Page-${i}`, 2, 10);
+    result.push(newPage);
   }
 
   return result;

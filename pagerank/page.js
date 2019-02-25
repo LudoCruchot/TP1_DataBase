@@ -1,6 +1,10 @@
-export default class {
-  constructor(a, b) {
-    this.a = a;
-    this.b = b;
+class Page {
+  constructor(name, linkOut, pageRank) {
+    this.name = name;
+    this.linkOut = linkOut;
+    this.pageRank = pageRank;
+    this.linkIn = 0;
   }
 }
+
+module.exports = Page;
