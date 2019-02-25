@@ -77,13 +77,18 @@ const asPromise = (url) => new Promise((resolve, reject) => {
       //level
       let level = $('.article-content').children('p').first().text();
 
-      if (nbB > 2) {
+      if (level.includes('wizard')) {
+        levelTab = level.split('wizard');
+        level = levelTab[1].trim();
+        level = level[0];
+      }
+      else if (level.includes('Level')) {
         levelTab = level.split('Level');
-        levelTab2 = levelTab[1].split(';');
-        level = levelTab2[0];
-      } else if (nbB == 2) {
-        levelTab = level.split('Level');
-        level = levelTab[1]
+        level = levelTab[1].trim();
+        level = level[level.length - 1];
+      }
+      else {
+        level = null;
       }
 
       //components
@@ -114,7 +119,13 @@ const asPromise = (url) => new Promise((resolve, reject) => {
 
       //json
       const nameToJSON = name.trim();
-      const levelToJSON = level.trim();
+      let levelToJSON = '';
+      if (level != null) {
+        levelToJSON = level.trim();
+      }
+      else {
+        levelToJSON = level;
+      }
 
       let componentsToJSON;
       if (components == null) {
@@ -144,7 +155,7 @@ const asPromise = (url) => new Promise((resolve, reject) => {
   })
 })
   .then((spell) => {
-    if (spell !== null) {
+    if (spell != null) {
       counter++;
       console.log(spell, counter);
       mongoUtils.insert(spell);
