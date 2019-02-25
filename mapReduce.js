@@ -19,9 +19,19 @@ db.spells.mapReduce(
 )
 
 var mapFunction = () => {
-    emit(this._id, this.components);
+    if (this.level < 5 && this.components[0] == 'V') {
+        if (this.components.length > 1) {
+            emit('Pas le bon sort', 1);
+        }
+        else {
+            emit(this.name, 1);
+        }
+    }
+    else {
+        emit('Pas le bon sort', 1);
+    }
 }
 
-var reduceFunction = () => {
-
+var reduceFunction = (key, values) => {
+    return Array.sum(values);
 }
