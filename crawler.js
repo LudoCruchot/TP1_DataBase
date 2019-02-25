@@ -68,6 +68,11 @@ function SpellsCrawling() {
                                         levelTab = level.split('Level');
                                         level = levelTab[1]
                                     }
+                                    if (level != null) {
+                                        levelTab3 = level.split('sorcerer/wizard');
+                                        console.log('Check level', levelTab3[1]);
+                                        // level = levelTab3[1];
+                                    }
 
                                     //components
                                     var components = '';
@@ -105,7 +110,7 @@ function SpellsCrawling() {
 
                                     //json
                                     var nameToJSON = name.trim();
-                                    var levelToJSON = level.trim();
+                                    var levelToJSON = level;
                                     if (components == null) {
                                         var componentsToJSON = components;
                                     }
@@ -142,7 +147,7 @@ function SpellsCrawling() {
                                         spell
                                     })
                                     counter++;
-                                    console.log(spell, ' inserted ', counter);
+                                    // console.log(spell, ' inserted ', counter);
                                 }
                             })
                     })

@@ -54,6 +54,11 @@ function SpellsCrawling() {
         levelTab = level.split('Level');
         level = levelTab[1]
     }
+    if (level != null) {
+        levelTab3 = level.split('sorcerer/wizard');
+        console.log('Check level', levelTab3[1]);
+        // level = levelTab3[1].trim();
+    }
 
     var components = '';
     components = $('.article-content')
@@ -83,7 +88,7 @@ function SpellsCrawling() {
     }
 
 
-    console.log(components);
+    console.log(level[0]);
 }
 
 SpellsCrawling();
