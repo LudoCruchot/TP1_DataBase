@@ -21,14 +21,36 @@ mongoose.connect(`mongodb://${DB_HOST}/${DB_NAME}`, { useNewUrlParser: true }, (
   });
 });
 
+const updatePromise = (data) => new Promise((resolve, reject) => {
+  console.log("d", data);
+  mongoose.connection.collection('pages').updateOne({ name: data._id }, { $set: { pagerank: data.value } }, (err, doc) => {
+    if(err) return reject("error while updating pagerank " + err);
+    return resolve();
+  });
+});
+
 module.exports = {
+  clearCollection: (name) => new Promise((resolve, reject) => {
+    mongoose.connection.collection(name).deleteMany({}, (err, res) => {
+      if (err) return reject("Error while cleaning");
+
+      return resolve(res);
+    })
+  }),
   insert: (spell) => mongoose.connection.collection('spells').insertOne({ spell }),
-  insertPages: (pages) => {
+  insertPages: (pages) => new Promise((resolve, reject) => {
     mongoose.connection.collection('pages').insertMany(pages, (err, res) => {
-      if(err) return console.log("error while inserting to mongoDB");
-      
-      console.log(res, "inserted");
-      process.exit(1);
+      if(err) return reject("error while inserting to mongoDB" + err);
+          
+      return resolve(res);
     });
-  }
+  }),
+  updatePageranks: (data) => new Promise((resolve, reject) => {
+      Promise.all(data.map(d => updatePromise(d)))
+        .then(res => resolve(res))
+        .catch(e => {
+          console.log("error in .all", e);
+          return reject("error in .all" + e);
+        }); 
+    })
 }
