@@ -3,7 +3,7 @@ const Page = require('./page');
 const values = {
   number: 3,
   linksOut: [1, 2, 3],
-  pageranks: [10, 10, 10],
+  pageranks: [5, 5, 5],
   linkNumber: [2, 1, 0],
 }
 

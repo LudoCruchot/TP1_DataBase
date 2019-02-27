@@ -21,9 +21,8 @@ mongoose.connect(`mongodb://${DB_HOST}/${DB_NAME}`, { useNewUrlParser: true }, (
   });
 });
 
-const updatePromise = (data) => new Promise((resolve, reject) => {
-  console.log("d", data);
-  mongoose.connection.collection('pages').updateOne({ name: data._id }, { $set: { pagerank: data.value } }, (err, doc) => {
+const updatePromise = () => new Promise((resolve, reject) => {
+  mongoose.connection.collection('reduced').updateOne({ name: data._id }, { $set: { pagerank: data.value } }, (err, doc) => {
     if(err) return reject("error while updating pagerank " + err);
     return resolve();
   });
@@ -45,12 +44,10 @@ module.exports = {
       return resolve(res);
     });
   }),
-  updatePageranks: (data) => new Promise((resolve, reject) => {
-      Promise.all(data.map(d => updatePromise(d)))
+  updatePageranks: () => updatePromise()
         .then(res => resolve(res))
         .catch(e => {
           console.log("error in .all", e);
           return reject("error in .all" + e);
-        }); 
-    })
+        })
 }

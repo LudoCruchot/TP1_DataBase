@@ -1,5 +1,6 @@
 const mongoUtil = require('../utils/mongo');
 const getSandboxData = require("./sandboxData");
+const Page = require('./page');
 
 const pages = getSandboxData();
 
@@ -18,10 +19,14 @@ mongoUtil
   .then(() => {
     mongoUtil.insertPages(pages)
     .catch(err => console.log(err))
-    .then(res => {
-      console.log(">>BASE PAGES INSERTED");
+    .then(() => {
+      console.log(">>PAGES INSERTED TO MONGO");
       /* let's update the pageranks */
-      const updatedPages = pages.map(page => page.updatePagerank());
-      // pages[0].updatePagerank();
+      Page.updatePageranks()
+        .then(() => {
+          console.log(">>PAGESRANKS UPDATED");
+          process.exit(1);
+        })
+        .catch(e => console.log("err =>", e));
     });
-  })
+  });

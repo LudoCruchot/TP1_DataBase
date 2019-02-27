@@ -1,5 +1,6 @@
 const mongo = require('../utils/mongo');
 const mongoose = require('mongoose');
+
 function map () {
   /* foreach of its links */
   let pagerank = 0;
@@ -32,19 +33,17 @@ class Page {
     this.links.push({ name, linkOut, pagerank, linkNumber });
   }
 
-  updatePagerank() {
-    mongoose.connection.collection('pages').mapReduce(map, reduce, { out: { inline: 1 }}, (err, res) => {
-      if(err) console.log(err);
-      mongo.updatePageranks(res)
-        .then(res => {
-          console.log(">>PAGERANKS UPDATED", res);
-        })
-        .catch(e => {
-          console.log("ERROR WHILE UPDATING PAGERANKS", e);
-        })
-      // mongoose.connection.close();
-      // process.exit(1);
-    })
+  static updatePageranks() {
+    return new Promise((resolve, reject) => {
+      mongoose.connection.collection('pages').mapReduce(map, reduce, { out: "reduced" }, (err, res) => {
+        if(err) return reject(err);
+
+        mongoose.connection.db.collection('pages').find({}, (e, docs) => {
+          if (e) return reject(e);
+          return resolve(true);
+        });
+      });
+    });
   }
 }
 
