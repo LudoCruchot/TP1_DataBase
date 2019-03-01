@@ -1,15 +1,16 @@
-import { emit } from "cluster";
+const mongoose = require('mongoose');
 
+// var db = mongoose.connection;
 mongoose.connect('mongodb://localhost/tp1_database');
-var db = mongoose.connection;
 
-db.on('error', console.error.bind(console, 'connection error: '));
+// db.on('error', console.error.bind(console, 'connection error: '));
 
-db.once('open', function () {
-    console.log('Connection successful');
-});
+// db.once('open', () => {
+//     console.log('Connection successful');
+//     spellsMapReduce();
+// });
 
-db.spells.mapReduce(
+mongoose.connection.collection('spells').mapReduce(
     mapFunction,
     reduceFunction,
     {
@@ -18,7 +19,19 @@ db.spells.mapReduce(
     }
 )
 
+var spellsMapReduce = () => {
+    db.spells.mapReduce(
+        mapFunction,
+        reduceFunction,
+        {
+            query: { components: "V" },
+            out: "filtered_spells"
+        }
+    )
+}
+
 var mapFunction = () => {
+    console.log('Map Function');
     if (this.level < 5 && this.components[0] == 'V') {
         if (this.components.length > 1) {
             emit('Pas le bon sort', 1);
@@ -33,5 +46,6 @@ var mapFunction = () => {
 }
 
 var reduceFunction = (key, values) => {
+    console.log('Reduce Function');
     return Array.sum(values);
 }
